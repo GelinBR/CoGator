@@ -15,7 +15,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
   };
 
   return (
-    <div className="chat-window">
+    <div className="chat-window open">
       <div className="chat-header">
         <h3>CoGator Assistant</h3>
         <button className="close-button" onClick={onClose} aria-label="Close chat">
