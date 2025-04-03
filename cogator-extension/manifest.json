@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "CoGator",
+  "version": "1.0.0",
+  "description": "AI-powered Canvas course assistant",
+  "permissions": ["activeTab", "storage"],
+  "content_scripts": [
+    {
+      "matches": ["*://*.instructure.com/*"],
+      "js": ["dist/content.js"],
+      "css": ["dist/styles.css"]
+    }
+  ],
+  "icons": {
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+} 
