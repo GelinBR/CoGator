@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles.css';
 
 interface Message {
@@ -19,6 +19,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
     return savedState ? JSON.parse(savedState) : true;
   });
 
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+
   const [messages, setMessages] = useState<Message[]>(() => {
     // Load messages from localStorage on initial render
     const savedMessages = localStorage.getItem('chatMessages');
@@ -32,6 +35,28 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
     }
     return [];
   });
+
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Group messages by date
+  const groupMessagesByDate = (messages: Message[]) => {
+    const groups: { [key: string]: Message[] } = {};
+    
+    messages.forEach(message => {
+      const date = message.timestamp.toLocaleDateString();
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(message);
+    });
+
+    return groups;
+  };
+
+  const messageGroups = groupMessagesByDate(messages);
 
   // Save window state to localStorage whenever it changes
   useEffect(() => {
@@ -91,20 +116,33 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ onClose }) => {
           </button>
         </div>
       </div>
-      <div className="chat-messages">
-        {messages.map((msg, index) => (
-          <div 
-            key={index} 
-            className={`message ${msg.sender === 'user' ? 'user-message' : 'bot-message'}`}
-          >
-            <div className="message-content">
-              {msg.text}
+      <div className="chat-messages" ref={messagesContainerRef}>
+        {Object.entries(messageGroups).map(([date, groupMessages]) => (
+          <div key={date} className="message-group">
+            <div className="date-divider">
+              {new Date(date).toLocaleDateString(undefined, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
             </div>
-            <div className="message-timestamp">
-              {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </div>
+            {groupMessages.map((msg, index) => (
+              <div 
+                key={index} 
+                className={`message ${msg.sender === 'user' ? 'user-message' : 'bot-message'}`}
+              >
+                <div className="message-content">
+                  {msg.text}
+                </div>
+                <div className="message-timestamp">
+                  {msg.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </div>
+              </div>
+            ))}
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
       <form className="chat-input" onSubmit={handleSubmit}>
         <textarea
