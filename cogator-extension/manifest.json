@@ -11,6 +11,12 @@
       "css": ["dist/styles.css"]
     }
   ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/*"],
+      "matches": ["*://*.instructure.com/*"]
+    }
+  ],
   "icons": {
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
